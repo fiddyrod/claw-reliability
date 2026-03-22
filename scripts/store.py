@@ -5,7 +5,7 @@ claw-reliability: SQLite storage layer for agent metrics.
 import sqlite3
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -81,7 +81,7 @@ class MetricsStore:
     def record_tool_invocation(self, tool_name, success, duration_ms=None,
                                 session_id=None, agent_id=None,
                                 error_message=None, params_summary=None):
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).isoformat()
         self.conn.execute("""
             INSERT INTO tool_invocations
             (timestamp, session_id, agent_id, tool_name, success, duration_ms, error_message, params_summary)
@@ -135,7 +135,7 @@ class MetricsStore:
     def record_llm_call(self, model, tokens_in=None, tokens_out=None,
                          latency_ms=None, estimated_cost_usd=None,
                          session_id=None, agent_id=None):
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).isoformat()
         self.conn.execute("""
             INSERT INTO llm_calls
             (timestamp, session_id, agent_id, model, tokens_in, tokens_out, latency_ms, estimated_cost_usd)
@@ -168,7 +168,7 @@ class MetricsStore:
         return cur.fetchone()['cost']
 
     def upsert_session(self, session_id, agent_id=None, started_at=None, ended_at=None):
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).isoformat()
         self.conn.execute("""
             INSERT INTO sessions (session_id, agent_id, started_at)
             VALUES (?, ?, ?)
@@ -192,7 +192,7 @@ class MetricsStore:
         return [dict(r) for r in cur.fetchall()]
 
     def record_alert(self, severity, alert_type, message, details=None):
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).isoformat()
         self.conn.execute("""
             INSERT INTO alerts (timestamp, severity, alert_type, message, details)
             VALUES (?, ?, ?, ?, ?)
