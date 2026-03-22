@@ -5,7 +5,7 @@ Built-in: DiscordAlerter, LogFileAlerter
 """
 
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 
 
@@ -28,7 +28,7 @@ class Alert:
         self.alert_type = alert_type
         self.message = message
         self.details = details or {}
-        self.timestamp = datetime.utcnow().isoformat()
+        self.timestamp = datetime.now(timezone.utc).isoformat()
 
     def to_dict(self):
         return {"severity": self.severity.value, "alert_type": self.alert_type.value,

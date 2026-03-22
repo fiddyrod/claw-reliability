@@ -1,6 +1,6 @@
 """claw-reliability: Anomaly detection engine."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from store import MetricsStore
 from alerts import Alert, AlertManager, Severity, AlertType
 
@@ -76,6 +76,6 @@ class AnomalyDetector:
         if not last:
             return True
         try:
-            return (datetime.utcnow() - datetime.fromisoformat(last)).total_seconds() > self.cooldown_seconds
+            return (datetime.now(timezone.utc) - datetime.fromisoformat(last)).total_seconds() > self.cooldown_seconds
         except ValueError:
             return True
