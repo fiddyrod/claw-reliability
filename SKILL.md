@@ -1,7 +1,7 @@
 ---
 name: claw-reliability
 description: Agent observability — monitors tool invocations, LLM calls, token usage, costs, and anomalies with pluggable alerts and a real-time dashboard.
-metadata: {"openclaw": {"requires": {"bins": ["python3"]}, "os": ["linux", "darwin"]}}
+metadata: {"openclaw": {"requires": {"bins": ["python3"], "config": ["agents.defaults.workspace"]}, "os": ["linux", "darwin"]}}
 ---
 
 # Claw Reliability — Agent Observability Skill

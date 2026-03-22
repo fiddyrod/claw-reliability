@@ -100,6 +100,12 @@ class SlackAlerter(BaseAlerter):
 - NemoClaw sandboxed environments
 - Linux, macOS, WSL2
 
+## Security Notes
+
+- **Session data stays local.** This skill reads OpenClaw session transcripts that may contain sensitive data — tool arguments, error messages, file paths. All metrics are stored in a local SQLite database and never transmitted unless you configure an external alert destination.
+- **External alert destinations receive sanitized text only.** Alert messages and details are redacted before being sent to Discord or other webhook endpoints — API keys, tokens, and home directory paths are stripped. Only use trusted webhook URLs; treat any external endpoint as a potential data recipient.
+- **The dashboard loads React and Babel from public CDNs.** For air-gapped or high-security setups, download those assets and serve them locally instead of from `unpkg.com` / `cdnjs`.
+
 ## Author
 
 Built by [Fiddy](https://github.com/fiddyrod) — AI Reliability Engineering

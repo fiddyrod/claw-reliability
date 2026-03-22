@@ -1,4 +1,7 @@
-"""claw-reliability: Discord webhook alerter."""
+"""
+claw-reliability: Discord webhook alerter.
+Setup: Discord Channel Settings > Integrations > Webhooks > Copy URL
+"""
 
 import json
 import urllib.request
@@ -16,19 +19,18 @@ class DiscordAlerter(BaseAlerter):
 
     def send_alert(self, alert):
         embed = {
-            "title": f"claw-reliability: {alert.alert_type.value.replace('_', ' ').title()}",
+            "title": f"🦞 claw-reliability — {alert.alert_type.value.replace('_', ' ').title()}",
             "description": alert.message,
             "color": self.COLORS.get(alert.severity, 0x95A5A6),
+            "timestamp": alert.timestamp,
             "fields": [{"name": k.replace("_", " ").title(), "value": str(v)[:1024], "inline": True}
                        for k, v in alert.details.items()],
             "footer": {"text": f"Severity: {alert.severity.value.upper()}"}
         }
-        payload = {"embeds": [embed]}
+        payload = {"embeds": [embed], "username": "claw-reliability"}
         data = json.dumps(payload).encode("utf-8")
         req = urllib.request.Request(self.webhook_url, data=data,
-                                      headers={"Content-Type": "application/json",
-                                               "User-Agent": "DiscordBot (claw-reliability, 1.0)"},
-                                      method="POST")
+                                      headers={"Content-Type": "application/json"}, method="POST")
         try:
             with urllib.request.urlopen(req, timeout=10) as resp:
                 return resp.status in (200, 204)
