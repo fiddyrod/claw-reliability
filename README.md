@@ -108,4 +108,4 @@ class SlackAlerter(BaseAlerter):
 
 ## Author
 
-Built by [Fiddy](https://github.com/fiddyrod) — AI Reliability Engineering
+Built by [Fiddy](https://github.com/fiddyrod)
