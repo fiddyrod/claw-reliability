@@ -18,7 +18,13 @@ base_dir = Path(__file__).parent.parent.parent
 db_path = base_dir / config.get("monitoring", {}).get("db_path", "data/metrics.db")
 
 app = FastAPI(title="🦞 claw-reliability Dashboard", version="1.0.0")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+dc = config.get("dashboard", {})
+_host = dc.get("host", "127.0.0.1")
+_port = dc.get("port", 8777)
+_origins = [f"http://{_host}:{_port}"]
+if _host == "127.0.0.1":
+    _origins.append(f"http://localhost:{_port}")
+app.add_middleware(CORSMiddleware, allow_origins=_origins, allow_methods=["GET"], allow_headers=["*"])
 
 def get_store(): return MetricsStore(str(db_path))
 
