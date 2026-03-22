@@ -18,17 +18,15 @@ OpenClaw gives AI agents hands. claw-reliability gives them a nervous system.
 # Install
 clawhub install claw-reliability
 
-# Install Python deps
+# Set up Python environment
+python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 
 # Start monitoring
 python3 scripts/monitor.py start
 
-# Set up Discord alerts
+# Configure Discord alerts
 python3 scripts/monitor.py configure-alerts --destination discord --webhook-url <YOUR_URL>
-
-# Test alerts
-python3 scripts/monitor.py test-alerts
 
 # Launch dashboard
 python3 dashboard/backend/main.py
@@ -108,4 +106,4 @@ class SlackAlerter(BaseAlerter):
 
 ## Author
 
-Built by [Fiddy](https://github.com/fiddyrod)
+Built by Fiddy
