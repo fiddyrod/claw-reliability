@@ -402,6 +402,54 @@ def test_parse_transcript_incremental_seek(tmp_path):
     assert second[0]["session_id"] == "s2"
 
 
+# --- state persistence ---
+
+def test_save_and_load_state(tmp_path):
+    """Positions saved by one parser instance are restored by the next."""
+    transcript = tmp_path / "session.jsonl"
+    line1 = json.dumps({"type": "session", "id": "s1", "timestamp": "2026-01-01T00:00:00Z"})
+    transcript.write_text(line1 + "\n")
+
+    state_file = tmp_path / "data" / "parser_state.json"
+    p1 = EventParser(openclaw_state_dir="/nonexistent", state_path=str(state_file))
+    list(p1.parse_transcript_incremental(str(transcript)))
+    p1.save_state()
+
+    assert state_file.exists()
+
+    # New instance — should resume from saved position, not re-parse
+    line2 = json.dumps({"type": "session", "id": "s2", "timestamp": "2026-01-01T00:01:00Z"})
+    with open(str(transcript), "a") as f:
+        f.write(line2 + "\n")
+
+    p2 = EventParser(openclaw_state_dir="/nonexistent", state_path=str(state_file))
+    events = list(p2.parse_transcript_incremental(str(transcript)))
+    assert len(events) == 1
+    assert events[0]["session_id"] == "s2"
+
+
+def test_save_state_creates_parent_dir(tmp_path):
+    state_file = tmp_path / "nested" / "deep" / "state.json"
+    p = EventParser(openclaw_state_dir="/nonexistent", state_path=str(state_file))
+    p._last_positions["/some/file.jsonl"] = 42
+    p.save_state()
+    assert state_file.exists()
+    assert json.loads(state_file.read_text()) == {"/some/file.jsonl": 42}
+
+
+def test_load_state_corrupt_file(tmp_path):
+    state_file = tmp_path / "state.json"
+    state_file.write_text("not valid json{{{")
+    p = EventParser(openclaw_state_dir="/nonexistent", state_path=str(state_file))
+    assert p._last_positions == {}
+
+
+def test_no_state_path_save_is_noop(tmp_path):
+    """Parser without state_path should not crash on save_state."""
+    p = EventParser(openclaw_state_dir="/nonexistent")
+    p.save_state()  # should not raise
+
+
 def test_parse_transcript_invalid_json_skipped(tmp_path):
     transcript = tmp_path / "session.jsonl"
     lines = [

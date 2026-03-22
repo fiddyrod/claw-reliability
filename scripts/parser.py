@@ -12,10 +12,31 @@ from typing import Generator
 
 
 class EventParser:
-    def __init__(self, openclaw_state_dir="~/.openclaw"):
+    def __init__(self, openclaw_state_dir="~/.openclaw", state_path=None):
         self.state_dir = Path(os.path.expanduser(openclaw_state_dir))
         self.agents_dir = self.state_dir / "agents"
+        self._state_path = Path(state_path) if state_path else None
         self._last_positions = {}
+        self._load_state()
+
+    def _load_state(self):
+        if not self._state_path or not self._state_path.exists():
+            return
+        try:
+            with open(self._state_path, 'r') as f:
+                self._last_positions = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            self._last_positions = {}
+
+    def save_state(self):
+        if not self._state_path:
+            return
+        try:
+            self._state_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(self._state_path, 'w') as f:
+                json.dump(self._last_positions, f)
+        except OSError:
+            pass
 
     def discover_agents(self):
         if not self.agents_dir.exists():
