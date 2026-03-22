@@ -33,7 +33,7 @@ class DiscordAlerter(BaseAlerter):
         payload = {"embeds": [embed], "username": "claw-reliability"}
         data = json.dumps(payload).encode("utf-8")
         req = urllib.request.Request(self.webhook_url, data=data,
-                                      headers={"Content-Type": "application/json", "User-Agent": "claw-reliability/1.0"}, method="POST")
+                                      headers={"Content-Type": "application/json"}, method="POST")
         try:
             with urllib.request.urlopen(req, timeout=10) as resp:
                 return resp.status in (200, 204)
