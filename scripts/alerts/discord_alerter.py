@@ -7,6 +7,7 @@ import json
 import urllib.request
 import urllib.error
 from alerts.base import BaseAlerter, Alert, Severity
+from alerts.sanitizer import sanitize_text, sanitize_details
 
 
 class DiscordAlerter(BaseAlerter):
@@ -18,13 +19,15 @@ class DiscordAlerter(BaseAlerter):
         self.webhook_url = webhook_url
 
     def send_alert(self, alert):
+        safe_message = sanitize_text(alert.message)
+        safe_details = sanitize_details(alert.details)
         embed = {
             "title": f"🦞 claw-reliability — {alert.alert_type.value.replace('_', ' ').title()}",
-            "description": alert.message,
+            "description": safe_message,
             "color": self.COLORS.get(alert.severity, 0x95A5A6),
             "timestamp": alert.timestamp,
             "fields": [{"name": k.replace("_", " ").title(), "value": str(v)[:1024], "inline": True}
-                       for k, v in alert.details.items()],
+                       for k, v in safe_details.items()],
             "footer": {"text": f"Severity: {alert.severity.value.upper()}"}
         }
         payload = {"embeds": [embed], "username": "claw-reliability"}
